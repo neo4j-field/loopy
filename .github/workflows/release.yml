@@ -15,10 +15,10 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -41,6 +41,7 @@ jobs:
           fi
           echo "Version verified: $POM_VERSION"
       
+      # Also created zips and tarballs used for the release
       - name: Build release artifacts
         run: mvn -B package -DskipTests
       
@@ -53,7 +54,7 @@ jobs:
           cat checksums-sha256.txt
       
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: Loopy v${{ steps.version.outputs.VERSION }}
           generate_release_notes: true
