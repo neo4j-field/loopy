@@ -18,11 +18,11 @@ import java.util.concurrent.Callable;
          sortOptions = false,
          footer = {
              "%nExamples:",
-             "  loopy run -a bolt://localhost:7687 -u neo4j -p password -t 4 -d 60",
+             "  loopy run -a bolt://localhost:7687 -u neo4j -p password -t 4 -D 60",
              "  loopy run --cypher-file=example-workload.yaml -a bolt://localhost:7687 -u neo4j -p password",
-             "  loopy run -m managed-write -g 5 -t 4 -d 60 -a bolt://localhost:7687 -u neo4j -p password",
-             "  loopy run -t 4 -d 300 --csv-logging --csv-file=results.csv -a bolt://localhost:7687 -u neo4j -p password",
-             "  loopy run -t 4 -d 300 --stats-format=json -a bolt://localhost:7687 -u neo4j -p password"
+             "  loopy run -m managed-write -g 5 -t 4 -D 60 -a bolt://localhost:7687 -u neo4j -p password",
+             "  loopy run -t 4 -D 300 --csv-logging --csv-file=results.csv -a bolt://localhost:7687 -u neo4j -p password",
+             "  loopy run -t 4 -D 300 --stats-format=json -a bolt://localhost:7687 -u neo4j -p password"
          })
 public class RunCommand implements Callable<Integer> {
 

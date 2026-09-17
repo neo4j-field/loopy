@@ -7,18 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-- `loopy run --help` showed only `-h`/`-V` — all other options were defined on the parent
-  `loopy` command and were never visible (or usable) on the `run` subcommand itself.
-- `docs/INSTALL.md` example referenced a non-existent `--workload` option; corrected to
-  `--cypher-file`.
+## [0.5.0] - 2026-09-17
 
 ### Changed
+- **BREAKING**: The `-d` short flag now selects `--database` instead of `--duration`.
+  Use `-D`/`--duration` to set test duration in seconds.
 - `run` help output now groups options into headed sections (Connection, Execution, YAML
   Workload, Transaction Mode, Output & Reporting), shows default values, and includes usage
   examples in a footer.
 - `benchmark` and `test-connection` now share the same `--neo4j-uri`/`--username`/`--password`
   option definitions as `run`, for consistent descriptions and behavior.
+
+### Added
+- `--database`/`-d` option to select the Neo4j database to connect to (default: `neo4j`),
+  supported by `run`, `benchmark`, and `test-connection`. Also configurable via the
+  `LOOPY_DATABASE` environment variable or the `neo4j.database` config property.
+
+### Fixed
+- `loopy run --help` showed only `-h`/`-V` — all other options were defined on the parent
+  `loopy` command and were never visible (or usable) on the `run` subcommand itself.
+- `docs/INSTALL.md` example referenced a non-existent `--workload` option; corrected to
+  `--cypher-file`.
 
 ## [0.3.0] - 2026-02-11
 

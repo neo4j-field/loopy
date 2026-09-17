@@ -72,7 +72,7 @@ loopy test-connection -a bolt://localhost:7687 -u neo4j -p password
 Generate load for 60 seconds with 4 threads:
 
 ```bash
-loopy run -a bolt://localhost:7687 -u neo4j -p password -t 4 -d 60
+loopy run -a bolt://localhost:7687 -u neo4j -p password -t 4 -D 60
 ```
 
 ### 3. Run with a Custom Workload
@@ -92,6 +92,7 @@ Loopy can be configured via command-line arguments or a properties file. Edit th
 neo4j.uri=bolt://localhost:7687
 neo4j.username=neo4j
 neo4j.password=password
+neo4j.database=neo4j
 
 # Load Parameters
 threads=4
@@ -124,20 +125,23 @@ Command-line arguments override configuration file settings.
 
 ```bash
 # 4 threads for 5 minutes (300 seconds)
-loopy run -t 4 -d 300 -a bolt://localhost:7687 -u neo4j -p password
+loopy run -t 4 -D 300 -a bolt://localhost:7687 -u neo4j -p password
 
 # 8 threads with 80% write operations
-loopy run -t 8 -d 600 -w 0.8 -a bolt://localhost:7687 -u neo4j -p password
+loopy run -t 8 -D 600 -w 0.8 -a bolt://localhost:7687 -u neo4j -p password
 
 # Connect to a remote cluster
-loopy run -t 4 -d 300 -a neo4j://cluster.example.com:7687 -u neo4j -p password
+loopy run -t 4 -D 300 -a neo4j://cluster.example.com:7687 -u neo4j -p password
+
+# Connect to a specific database (e.g. "system" or a named database)
+loopy run -t 4 -D 300 -d system -a bolt://localhost:7687 -u neo4j -p password
 ```
 
 ### Custom Data Patterns
 
 ```bash
 # Custom node labels and relationship types
-loopy run -t 4 -d 300 \
+loopy run -t 4 -D 300 \
   --node-labels="Customer,Product,Order" \
   --relationship-types="PURCHASED,REVIEWED,RECOMMENDED" \
   -a bolt://localhost:7687 -u neo4j -p password
@@ -147,15 +151,15 @@ loopy run -t 4 -d 300 \
 
 ```bash
 # CSV output for analysis
-loopy run -t 4 -d 300 --csv-logging --csv-file=results.csv \
+loopy run -t 4 -D 300 --csv-logging --csv-file=results.csv \
   -a bolt://localhost:7687 -u neo4j -p password
 
 # Verbose output
-loopy run -t 4 -d 300 --verbose \
+loopy run -t 4 -D 300 --verbose \
   -a bolt://localhost:7687 -u neo4j -p password
 
 # JSON statistics format
-loopy run -t 4 -d 300 --stats-format=json \
+loopy run -t 4 -D 300 --stats-format=json \
   -a bolt://localhost:7687 -u neo4j -p password
 ```
 
@@ -198,6 +202,7 @@ Loopy displays real-time statistics during execution:
 | `--neo4j-uri` | `-a` | Neo4j connection URI |
 | `--username` | `-u` | Neo4j username |
 | `--password` | `-p` | Neo4j password |
+| `--database` | `-d` | Neo4j database name to connect to |
 | `--config` | `-c` | Configuration file path |
 | `--help` | `-h` | Show help message |
 | `--version` | `-V` | Print version information |
@@ -214,13 +219,14 @@ Loopy displays real-time statistics during execution:
 | `--neo4j-uri` | `-a` | Neo4j connection URI | `neo4j://localhost:7687` |
 | `--username` | `-u` | Neo4j username | `neo4j` |
 | `--password` | `-p` | Neo4j password | `password` |
+| `--database` | `-d` | Neo4j database name to connect to | `neo4j` |
 
 **Execution**
 
 | Option | Short | Description | Default |
 |--------|-------|-------------|---------|
 | `--threads` | `-t` | Number of worker threads | 4 |
-| `--duration` | `-d` | Test duration in seconds | 300 |
+| `--duration` | `-D` | Test duration in seconds | 300 |
 | `--write-ratio` | `-w` | Write operation ratio (0.0-1.0) | 0.7 |
 | `--batch-size` | `-b` | Batch size for operations | 100 |
 | `--node-labels` | `-n` | Comma-separated node labels | Person,Product,Order |
@@ -292,7 +298,7 @@ queries:
 
 ```bash
 # Run workload
-java -jar loopy-0.1.0.jar run --cypher-file=workload.yaml -t 8 -d 300 \
+java -jar loopy-0.1.0.jar run --cypher-file=workload.yaml -t 8 -D 300 \
   -a bolt://localhost:7687 -u neo4j -p password
 
 # Validate workload before running
@@ -371,8 +377,8 @@ Set the mode for an entire run with `--transaction-mode` / `-m`:
 
 ```bash
 # Compare auto-commit vs. managed-write under the same load
-loopy run -m auto-commit -t 4 -d 60 -a bolt://localhost:7687 -u neo4j -p password
-loopy run -m managed-write -t 4 -d 60 -a bolt://localhost:7687 -u neo4j -p password
+loopy run -m auto-commit -t 4 -D 60 -a bolt://localhost:7687 -u neo4j -p password
+loopy run -m managed-write -t 4 -D 60 -a bolt://localhost:7687 -u neo4j -p password
 ```
 
 ### Grouping Operations into One Transaction
@@ -384,7 +390,7 @@ For `explicit` and `managed-*` modes, multiple queries can be grouped so they ru
   generated operations (all reads or all writes) into one transaction.
 
   ```bash
-  loopy run -m managed-write -g 5 -t 4 -d 60 -a bolt://localhost:7687 -u neo4j -p password
+  loopy run -m managed-write -g 5 -t 4 -D 60 -a bolt://localhost:7687 -u neo4j -p password
   ```
 
 - **YAML workloads**: define a `transactionGroups` entry. All queries in the group share one
@@ -543,7 +549,7 @@ ENTRYPOINT ["java", "-jar", "loopy.jar"]
 Build and run:
 ```bash
 docker build -t loopy .
-docker run loopy run -a bolt://host.docker.internal:7687 -u neo4j -p password -t 4 -d 60
+docker run loopy run -a bolt://host.docker.internal:7687 -u neo4j -p password -t 4 -D 60
 ```
 
 ## Legacy Argument Support

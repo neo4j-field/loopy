@@ -6,6 +6,7 @@ import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Session;
+import org.neo4j.driver.SessionConfig;
 import org.neo4j.driver.Result;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -31,6 +32,7 @@ public class TestConnectionCommand implements Callable<Integer> {
     private String neo4jUri;
     private String username;
     private String password;
+    private String database;
     
     @Option(names = {"--nodes"}, 
             description = "Comma-separated list of cluster node URIs to test individually",
@@ -54,6 +56,7 @@ public class TestConnectionCommand implements Callable<Integer> {
         this.neo4jUri = connection.getNeo4jUri();
         this.username = connection.getUsername();
         this.password = connection.getPassword();
+        this.database = connection.getDatabase();
         
         if (quickTest) {
             return runQuickTest();
@@ -200,7 +203,7 @@ public class TestConnectionCommand implements Callable<Integer> {
             driver.verifyConnectivity();
             System.out.println("\u001B[32m✓\u001B[0m");
             
-            try (Session session = driver.session()) {
+            try (Session session = driver.session(SessionConfig.forDatabase(database))) {
                 
                 // Test database version
                 System.out.print("  • Checking database version... ");
@@ -263,7 +266,7 @@ public class TestConnectionCommand implements Callable<Integer> {
                 String uri = nodeUris[i];
                 System.out.println("\u001B[36m=== Node " + (i + 1) + ": " + uri + " ===\u001B[0m");
                 
-                Neo4jDiagnostics diagnostics = new Neo4jDiagnostics(uri, username, password);
+                Neo4jDiagnostics diagnostics = new Neo4jDiagnostics(uri, username, password, database);
                 Neo4jDiagnostics.DiagnosticReport report = diagnostics.runDiagnostics();
                 
                 // Save individual report if requested
@@ -304,7 +307,7 @@ public class TestConnectionCommand implements Callable<Integer> {
             System.out.println("  (Cluster routing URI detected: neo4j:// scheme)\n");
         }
         
-        Neo4jDiagnostics diagnostics = new Neo4jDiagnostics(neo4jUri, username, password);
+        Neo4jDiagnostics diagnostics = new Neo4jDiagnostics(neo4jUri, username, password, database);
         Neo4jDiagnostics.DiagnosticReport report = diagnostics.runDiagnostics();
         
         // Save report if requested

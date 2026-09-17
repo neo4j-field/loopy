@@ -34,7 +34,7 @@ public class RunOptions {
                 defaultValue = "${LOOPY_THREADS:-4}")
         private Integer threads;
 
-        @Option(names = {"--duration", "-d"},
+        @Option(names = {"--duration", "-D"},
                 description = "Test duration in seconds (minimum 1)",
                 defaultValue = "${LOOPY_DURATION:-300}")
         private Integer duration;
@@ -119,6 +119,7 @@ public class RunOptions {
     public String getNeo4jUri() { return connection.getNeo4jUri(); }
     public String getUsername() { return connection.getUsername(); }
     public String getPassword() { return connection.getPassword(); }
+    public String getDatabase() { return connection.getDatabase(); }
 
     public Integer getThreads() { return execution.threads; }
     public Integer getDuration() { return execution.duration; }

@@ -79,6 +79,7 @@ public class ValidateCommand implements Callable<Integer> {
     private void printConfigSummary(LoopyConfig config) {
         System.out.println("\nConfiguration Summary:");
         System.out.println("  Neo4j URI: " + config.getNeo4jUri());
+        System.out.println("  Database: " + config.getNeo4jDatabase());
         System.out.println("  Username: " + config.getNeo4jUsername());
         System.out.println("  Threads: " + config.getThreads());
         System.out.println("  Duration: " + config.getDurationSeconds() + " seconds");

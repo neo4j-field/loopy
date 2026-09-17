@@ -25,8 +25,9 @@ _loopy() {
         '(-a --neo4j-uri)'{-a,--neo4j-uri}'[Neo4j connection URI]:uri:(bolt://localhost:7687 neo4j://localhost:7687)'
         '(-u --username)'{-u,--username}'[Neo4j username]:username:(neo4j)'
         '(-p --password)'{-p,--password}'[Neo4j password]:password:'
+        '(-d --database)'{-d,--database}'[Neo4j database name to connect to]:database:(neo4j system)'
         '(-t --threads)'{-t,--threads}'[Number of worker threads]:threads:(1 2 4 8 16)'
-        '(-d --duration)'{-d,--duration}'[Test duration in seconds]:seconds:(30 60 120 300 600)'
+        '(-D --duration)'{-D,--duration}'[Test duration in seconds]:seconds:(30 60 120 300 600)'
         '(-w --write-ratio)'{-w,--write-ratio}'[Write operation ratio]:ratio:(0.1 0.3 0.5 0.7 0.9)'
         '(-b --batch-size)'{-b,--batch-size}'[Batch size for operations]:size:(100 500 1000 2000)'
         '(-n --node-labels)'{-n,--node-labels}'[Comma-separated node labels]:labels:'
@@ -77,6 +78,7 @@ _loopy() {
                         '--nodes[Comma-separated list of cluster node URIs]:nodes:' \
                         '(-u --username)'{-u,--username}'[Neo4j username]:username:' \
                         '(-p --password)'{-p,--password}'[Neo4j password]:password:' \
+                        '(-d --database)'{-d,--database}'[Neo4j database name to connect to]:database:(neo4j system)' \
                         '--full-diagnostics[Run comprehensive diagnostics]' \
                         '--diag[Run comprehensive diagnostics]' \
                         '--save-report[Save diagnostic report to file]:file:_files' \

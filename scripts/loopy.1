@@ -29,10 +29,13 @@ Neo4j username (default: neo4j)
 .BR \-p ", " \-\-password " " \fIPASSWORD\fR
 Neo4j password (interactive prompt if not provided)
 .TP
+.BR \-d ", " \-\-database " " \fIDATABASE\fR
+Neo4j database name to connect to (default: neo4j)
+.TP
 .BR \-t ", " \-\-threads " " \fINUM\fR
 Number of worker threads (default: 4)
 .TP
-.BR \-d ", " \-\-duration " " \fISECONDS\fR
+.BR \-D ", " \-\-duration " " \fISECONDS\fR
 Test duration in seconds (default: 300)
 .TP
 .BR \-w ", " \-\-write\-ratio " " \fIRATIO\fR
@@ -126,7 +129,7 @@ Loopy uses a properties file for configuration. The default location is \fIconfi
 
 .TP
 .B Neo4j Connection
-neo4j.uri, neo4j.username, neo4j.password
+neo4j.uri, neo4j.username, neo4j.password, neo4j.database
 .TP
 .B Load Testing Parameters  
 threads, duration.seconds, write.ratio, batch.size

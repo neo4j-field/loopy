@@ -12,7 +12,7 @@ _loopy() {
     commands="run validate benchmark test-connection setup config report security help"
     
     # Global options
-    opts="--help -h --version -V --config -c --neo4j-uri -a --username -u --password -p --threads -t --duration -d --write-ratio -w --batch-size -b --node-labels -n --relationship-types -r --property-size --report-interval --csv-logging --csv-file --quiet -q --verbose -v"
+    opts="--help -h --version -V --config -c --neo4j-uri -a --username -u --password -p --database -d --threads -t --duration -D --write-ratio -w --batch-size -b --node-labels -n --relationship-types -r --property-size --report-interval --csv-logging --csv-file --quiet -q --verbose -v"
     
     # Handle subcommands
     if [[ ${#COMP_WORDS[@]} -gt 2 ]]; then
@@ -60,7 +60,7 @@ _loopy() {
                         return 0
                         ;;
                 esac
-                local test_opts="--neo4j-uri -a --nodes --username -u --password -p --full-diagnostics --diag --save-report --quick --help -h"
+                local test_opts="--neo4j-uri -a --nodes --username -u --password -p --database -d --full-diagnostics --diag --save-report --quick --help -h"
                 COMPREPLY=( $(compgen -W "${test_opts}" -- ${cur}) )
                 return 0
                 ;;
@@ -100,8 +100,12 @@ _loopy() {
             COMPREPLY=( $(compgen -W "1 2 4 8 16" -- ${cur}) )
             return 0
             ;;
-        --duration|-d)
+        --duration|-D)
             COMPREPLY=( $(compgen -W "30 60 120 300 600" -- ${cur}) )
+            return 0
+            ;;
+        --database|-d)
+            COMPREPLY=( $(compgen -W "neo4j system" -- ${cur}) )
             return 0
             ;;
         --batch-size|-b)

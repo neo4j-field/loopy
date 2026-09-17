@@ -48,6 +48,7 @@ public class BenchmarkCommand implements Callable<Integer> {
             System.setProperty("neo4j.uri", connection.getNeo4jUri());
             System.setProperty("neo4j.username", connection.getUsername());
             System.setProperty("neo4j.password", connection.getPassword());
+            System.setProperty("neo4j.database", connection.getDatabase());
             System.setProperty("threads", String.valueOf(benchProfile.threads));
             System.setProperty("duration.seconds", String.valueOf(benchProfile.duration));
             System.setProperty("write.ratio", String.valueOf(benchProfile.writeRatio));
@@ -85,6 +86,7 @@ public class BenchmarkCommand implements Callable<Integer> {
     private void printBenchmarkDetails(BenchmarkProfile profile) {
         System.out.println("\nBenchmark Configuration:");
         System.out.println("  Description: " + profile.description);
+        System.out.println("  Database: " + connection.getDatabase());
         System.out.println("  Threads: " + profile.threads);
         System.out.println("  Duration: " + profile.duration + " seconds");
         System.out.println("  Write Ratio: " + (profile.writeRatio * 100) + "%");

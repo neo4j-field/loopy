@@ -22,12 +22,15 @@ public class LoopyConfig {
     
     @CliOption(names = {"--password", "-p"}, description = "Neo4j password", envVar = "LOOPY_PASSWORD")
     private String neo4jPassword;
+
+    @CliOption(names = {"--database", "-d"}, description = "Neo4j database name to connect to", envVar = "LOOPY_DATABASE")
+    private String neo4jDatabase;
     
     // Load Parameters
     @CliOption(names = {"--threads", "-t"}, description = "Number of worker threads", min = 1, max = 100, envVar = "LOOPY_THREADS")
     private int threads;
     
-    @CliOption(names = {"--duration", "-d"}, description = "Test duration in seconds", min = 1, envVar = "LOOPY_DURATION")
+    @CliOption(names = {"--duration", "-D"}, description = "Test duration in seconds", min = 1, envVar = "LOOPY_DURATION")
     private int durationSeconds;
     
     @CliOption(names = {"--write-ratio", "-w"}, description = "Write operation ratio (0.0-1.0)", min = 0.0, max = 1.0)
@@ -113,6 +116,7 @@ public class LoopyConfig {
         neo4jUri = properties.getProperty("neo4j.uri", "bolt://localhost:7687");
         neo4jUsername = properties.getProperty("neo4j.username", "neo4j");
         neo4jPassword = properties.getProperty("neo4j.password", "password");
+        neo4jDatabase = properties.getProperty("neo4j.database", "neo4j");
         
         threads = Integer.parseInt(properties.getProperty("threads", "4"));
         durationSeconds = Integer.parseInt(properties.getProperty("duration.seconds", "300"));
@@ -134,6 +138,7 @@ public class LoopyConfig {
     public String getNeo4jUri() { return neo4jUri; }
     public String getNeo4jUsername() { return neo4jUsername; }
     public String getNeo4jPassword() { return neo4jPassword; }
+    public String getNeo4jDatabase() { return neo4jDatabase; }
     public int getThreads() { return threads; }
     public int getDurationSeconds() { return durationSeconds; }
     public double getWriteRatio() { return writeRatio; }
@@ -206,6 +211,7 @@ public class LoopyConfig {
         props.setProperty("neo4j.uri", neo4jUri);
         props.setProperty("neo4j.username", neo4jUsername);
         props.setProperty("neo4j.password", neo4jPassword);
+        props.setProperty("neo4j.database", neo4jDatabase);
         props.setProperty("threads", String.valueOf(threads));
         props.setProperty("duration.seconds", String.valueOf(durationSeconds));
         props.setProperty("write.ratio", String.valueOf(writeRatio));

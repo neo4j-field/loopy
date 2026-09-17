@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
     mixinStandardHelpOptions = true,
     showDefaultValues = true,
     sortOptions = false,
-    version = "0.3.0",
+    version = "0.5.0",
     subcommands = {
         com.neo4j.loopy.commands.RunCommand.class,
         com.neo4j.loopy.commands.ValidateCommand.class,
@@ -161,7 +161,7 @@ public class LoopyApplication implements Callable<Integer> {
         
         CypherWorkloadValidator validator = new CypherWorkloadValidator();
         CypherWorkloadValidator.ValidationResult result = validator.validate(
-            cypherFile, options.getNeo4jUri(), options.getUsername(), options.getPassword()
+            cypherFile, options.getNeo4jUri(), options.getUsername(), options.getPassword(), options.getDatabase()
         );
         
         // Print warnings
@@ -283,6 +283,7 @@ public class LoopyApplication implements Callable<Integer> {
         String neo4jUri = options.getNeo4jUri();
         String username = options.getUsername();
         String password = options.getPassword();
+        String database = options.getDatabase();
         Integer threads = options.getThreads();
         Integer duration = options.getDuration();
         Double writeRatio = options.getWriteRatio();
@@ -299,6 +300,7 @@ public class LoopyApplication implements Callable<Integer> {
         if (neo4jUri != null) args.addAll(List.of("--neo4j.uri=" + neo4jUri));
         if (username != null) args.addAll(List.of("--neo4j.username=" + username));
         if (password != null) args.addAll(List.of("--neo4j.password=" + password));
+        if (database != null) args.addAll(List.of("--neo4j.database=" + database));
         if (threads != null) args.addAll(List.of("--threads=" + threads));
         if (duration != null) args.addAll(List.of("--duration.seconds=" + duration));
         if (writeRatio != null) args.addAll(List.of("--write.ratio=" + writeRatio));
@@ -337,6 +339,7 @@ public class LoopyApplication implements Callable<Integer> {
             System.out.println("\u001B[36mStarting Loopy load generator...\u001B[0m");
             System.out.println("Configuration:");
             System.out.println("  Neo4j URI: " + config.getNeo4jUri());
+            System.out.println("  Database: " + config.getNeo4jDatabase());
             System.out.println("  Threads: " + config.getThreads());
             System.out.println("  Duration: " + config.getDurationSeconds() + " seconds");
             

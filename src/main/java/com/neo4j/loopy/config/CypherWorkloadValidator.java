@@ -4,6 +4,7 @@ import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Session;
+import org.neo4j.driver.SessionConfig;
 import org.neo4j.driver.exceptions.Neo4jException;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -113,7 +114,7 @@ public class CypherWorkloadValidator {
      * @return validation result
      */
     public ValidationResult validate(String filePath) {
-        return validate(filePath, null, null, null);
+        return validate(filePath, null, null, null, null);
     }
     
     /**
@@ -125,6 +126,19 @@ public class CypherWorkloadValidator {
      * @return validation result
      */
     public ValidationResult validate(String filePath, String neo4jUri, String username, String password) {
+        return validate(filePath, neo4jUri, username, password, null);
+    }
+
+    /**
+     * Validate a YAML workload file with optional Cypher syntax validation against a database
+     * @param filePath path to the YAML file
+     * @param neo4jUri Neo4j connection URI for syntax validation (optional)
+     * @param username Neo4j username (optional)
+     * @param password Neo4j password (optional)
+     * @param database Neo4j database name to validate against (optional; server default if null)
+     * @return validation result
+     */
+    public ValidationResult validate(String filePath, String neo4jUri, String username, String password, String database) {
         errors.clear();
         warnings.clear();
         
@@ -170,7 +184,7 @@ public class CypherWorkloadValidator {
         
         // Step 8: Optional Cypher syntax validation
         if (neo4jUri != null && !hasErrors()) {
-            validateCypherSyntax(config, neo4jUri, username, password);
+            validateCypherSyntax(config, neo4jUri, username, password, database);
         }
         
         return new ValidationResult(!hasErrors(), config, errors, warnings);
@@ -418,12 +432,15 @@ public class CypherWorkloadValidator {
     }
     
     private void validateCypherSyntax(CypherWorkloadConfig config, String neo4jUri, 
-                                       String username, String password) {
+                                       String username, String password, String database) {
         Driver driver = null;
         try {
             driver = GraphDatabase.driver(neo4jUri, AuthTokens.basic(username, password));
             
-            try (Session session = driver.session()) {
+            SessionConfig sessionConfig = database != null
+                ? SessionConfig.forDatabase(database)
+                : SessionConfig.defaultConfig();
+            try (Session session = driver.session(sessionConfig)) {
                 for (CypherWorkloadConfig.QueryDefinition query : config.getQueries()) {
                     String queryId = query.getId() != null ? query.getId() : "unknown";
                     String cypher = query.getCypher();

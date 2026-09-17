@@ -97,6 +97,7 @@ These options are available for the main `loopy` command and apply across all su
 | `--neo4j-uri` | `-a` | Neo4j connection URI | `bolt://localhost:7687` | `-a bolt://prod-server:7687` |
 | `--username` | `-u` | Neo4j username | `neo4j` | `-u admin` |
 | `--password` | `-p` | Neo4j password (interactive prompt) | `password` | `-p` (prompts securely) |
+| `--database` | `-d` | Neo4j database name to connect to | `neo4j` | `-d system` |
 | `--config` | `-c` | Configuration file path | `config.properties` | `-c prod-config.properties` |
 
 **Environment Variables:**
@@ -110,7 +111,7 @@ These options are available for the main `loopy` command and apply across all su
 | Option | Short | Description | Default | Range | Example |
 |--------|-------|-------------|---------|-------|---------|
 | `--threads` | `-t` | Number of worker threads | `4` | 1-100 | `-t 8` |
-| `--duration` | `-d` | Test duration (seconds) | `300` | ≥1 | `-d 60` |
+| `--duration` | `-D` | Test duration (seconds) | `300` | ≥1 | `-D 60` |
 | `--write-ratio` | `-w` | Write operation ratio | `0.7` | 0.0-1.0 | `-w 0.5` |
 | `--batch-size` | `-b` | Batch size for operations | `100` | ≥1 | `-b 500` |
 

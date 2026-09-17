@@ -21,11 +21,13 @@ public class Neo4jDiagnostics {
     private final String uri;
     private final String username;
     private final String password;
+    private final String database;
     
-    public Neo4jDiagnostics(String uri, String username, String password) {
+    public Neo4jDiagnostics(String uri, String username, String password, String database) {
         this.uri = uri;
         this.username = username;
         this.password = password;
+        this.database = database;
     }
     
     /**
@@ -89,7 +91,7 @@ public class Neo4jDiagnostics {
     private void getDatabaseInfo(Driver driver, DiagnosticReport report) {
         System.out.println("\n\u001B[33m=== Database Information ===\u001B[0m");
         
-        try (Session session = driver.session()) {
+        try (Session session = driver.session(SessionConfig.forDatabase(database))) {
             
             // Database version and edition
             System.out.print("  • Database version... ");
@@ -152,7 +154,7 @@ public class Neo4jDiagnostics {
     private void testPerformanceMetrics(Driver driver, DiagnosticReport report) {
         System.out.println("\n\u001B[33m=== Performance Metrics ===\u001B[0m");
         
-        try (Session session = driver.session()) {
+        try (Session session = driver.session(SessionConfig.forDatabase(database))) {
             
             // Test simple query latency
             System.out.print("  • Simple query latency... ");
@@ -197,7 +199,7 @@ public class Neo4jDiagnostics {
     private void testPermissions(Driver driver, DiagnosticReport report) {
         System.out.println("\n\u001B[33m=== Security & Permissions ===\u001B[0m");
         
-        try (Session session = driver.session()) {
+        try (Session session = driver.session(SessionConfig.forDatabase(database))) {
             
             // Test read permissions
             System.out.print("  • Read permissions... ");
@@ -267,7 +269,7 @@ public class Neo4jDiagnostics {
         report.clientProcessors = runtime.availableProcessors();
         
         // Try to get server-side info
-        try (Session session = driver.session()) {
+        try (Session session = driver.session(SessionConfig.forDatabase(database))) {
             System.out.print("  • Server configuration... ");
             try {
                 // This requires admin privileges
@@ -355,6 +357,7 @@ public class Neo4jDiagnostics {
             writer.write("## Connection Information\n");
             writer.write("URI: " + uri + "\n");
             writer.write("Username: " + username + "\n");
+            writer.write("Database: " + database + "\n");
             writer.write("Connection Latency: " + report.connectionLatency + "ms\n\n");
             
             if (report.databaseName != null) {

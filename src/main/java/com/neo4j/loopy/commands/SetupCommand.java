@@ -5,6 +5,7 @@ import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
+import org.neo4j.driver.SessionConfig;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -88,6 +89,7 @@ public class SetupCommand implements Callable<Integer> {
         String uri = promptWithDefault("Neo4j URI", "bolt://localhost:7687");
         String username = promptWithDefault("Username", "neo4j");
         String password = promptPassword("Password");
+        String database = promptWithDefault("Neo4j database", "neo4j");
         
         System.out.println("\n\u001B[36m=== Load Testing Parameters ===\u001B[0m");
         
@@ -113,6 +115,7 @@ public class SetupCommand implements Callable<Integer> {
         configProps.setProperty("neo4j.uri", uri);
         configProps.setProperty("neo4j.username", username);
         configProps.setProperty("neo4j.password", password);
+        configProps.setProperty("neo4j.database", database);
         configProps.setProperty("threads", String.valueOf(threads));
         configProps.setProperty("duration.seconds", String.valueOf(duration));
         configProps.setProperty("write.ratio", String.valueOf(writeRatio));
@@ -170,7 +173,7 @@ public class SetupCommand implements Callable<Integer> {
             driver.verifyConnectivity();
             System.out.println("\u001B[32m✓\u001B[0m");
             
-            try (Session session = driver.session()) {
+            try (Session session = driver.session(SessionConfig.forDatabase(config.getProperty("neo4j.database", "neo4j")))) {
                 System.out.print("  • Checking database version... ");
                 Result result = session.run("CALL dbms.components() YIELD name, versions, edition");
                 if (result.hasNext()) {
@@ -221,7 +224,8 @@ public class SetupCommand implements Callable<Integer> {
                 writer.write("# Neo4j Connection\n");
                 writer.write("neo4j.uri=" + config.getProperty("neo4j.uri") + "\n");
                 writer.write("neo4j.username=" + config.getProperty("neo4j.username") + "\n");
-                writer.write("neo4j.password=" + config.getProperty("neo4j.password") + "\n\n");
+                writer.write("neo4j.password=" + config.getProperty("neo4j.password") + "\n");
+                writer.write("neo4j.database=" + config.getProperty("neo4j.database") + "\n\n");
                 
                 writer.write("# Load Testing Parameters\n");
                 writer.write("threads=" + config.getProperty("threads") + "\n");
@@ -256,6 +260,7 @@ public class SetupCommand implements Callable<Integer> {
         System.out.println("\nYour Loopy configuration:");
         System.out.println("  • Configuration file: " + outputPath);
         System.out.println("  • Neo4j URI: " + config.getProperty("neo4j.uri"));
+        System.out.println("  • Neo4j database: " + config.getProperty("neo4j.database"));
         System.out.println("  • Load test duration: " + config.getProperty("duration.seconds") + " seconds");
         System.out.println("  • Worker threads: " + config.getProperty("threads"));
         System.out.println("  • Write ratio: " + Math.round(Double.parseDouble(config.getProperty("write.ratio")) * 100) + "%");

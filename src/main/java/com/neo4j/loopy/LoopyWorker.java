@@ -10,6 +10,7 @@ import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Session;
+import org.neo4j.driver.SessionConfig;
 import org.neo4j.driver.exceptions.Neo4jException;
 
 import java.util.Collections;
@@ -58,7 +59,7 @@ public class LoopyWorker implements Worker {
                 driver.close();
             }
         } else {
-            try (Session session = driver.session()) {
+            try (Session session = driver.session(SessionConfig.forDatabase(config.getNeo4jDatabase()))) {
                 runLoop(session);
             } catch (Exception e) {
                 System.err.println("Failed to create session: " + e.getMessage());

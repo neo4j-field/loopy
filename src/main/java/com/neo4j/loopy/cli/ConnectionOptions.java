@@ -27,7 +27,13 @@ public class ConnectionOptions {
             defaultValue = "${LOOPY_PASSWORD:-password}")
     private String password;
 
+    @Option(names = {"--database", "-d"},
+            description = "Neo4j database name to connect to",
+            defaultValue = "${LOOPY_DATABASE:-neo4j}")
+    private String database;
+
     public String getNeo4jUri() { return neo4jUri; }
     public String getUsername() { return username; }
     public String getPassword() { return password; }
+    public String getDatabase() { return database; }
 }
