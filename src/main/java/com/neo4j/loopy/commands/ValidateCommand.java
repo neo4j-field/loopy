@@ -17,7 +17,7 @@ public class ValidateCommand implements Callable<Integer> {
     
     @Parameters(index = "0", 
                 description = "Configuration file to validate", 
-                defaultValue = "src/main/resources/config.properties")
+                defaultValue = "config.properties")
     private File configFile;
     
     @Override
