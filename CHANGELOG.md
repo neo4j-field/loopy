@@ -5,6 +5,21 @@ All notable changes to Loopy will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- `loopy run --help` showed only `-h`/`-V` — all other options were defined on the parent
+  `loopy` command and were never visible (or usable) on the `run` subcommand itself.
+- `docs/INSTALL.md` example referenced a non-existent `--workload` option; corrected to
+  `--cypher-file`.
+
+### Changed
+- `run` help output now groups options into headed sections (Connection, Execution, YAML
+  Workload, Transaction Mode, Output & Reporting), shows default values, and includes usage
+  examples in a footer.
+- `benchmark` and `test-connection` now share the same `--neo4j-uri`/`--username`/`--password`
+  option definitions as `run`, for consistent descriptions and behavior.
+
 ## [0.3.0] - 2026-02-11
 
 ### Changed

@@ -1,5 +1,6 @@
 package com.neo4j.loopy.commands;
 
+import com.neo4j.loopy.cli.ConnectionOptions;
 import com.neo4j.loopy.diagnostics.Neo4jDiagnostics;
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
@@ -7,6 +8,7 @@ import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Result;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
 import java.util.ArrayList;
@@ -22,27 +24,18 @@ import java.util.concurrent.Callable;
          mixinStandardHelpOptions = true)
 public class TestConnectionCommand implements Callable<Integer> {
     
-    @Option(names = {"--neo4j-uri", "-a"}, 
-            description = "Neo4j connection URI (supports bolt://, neo4j://, bolt+s://, neo4j+s://, bolt+ssc://, neo4j+ssc://)",
-            defaultValue = "${LOOPY_NEO4J_URI:-bolt://localhost:7687}")
+    @Mixin
+    private ConnectionOptions connection = new ConnectionOptions();
+    
+    // Resolved from `connection` at the start of call(); kept as fields since referenced throughout this class
     private String neo4jUri;
+    private String username;
+    private String password;
     
     @Option(names = {"--nodes"}, 
             description = "Comma-separated list of cluster node URIs to test individually",
             split = ",")
     private String[] nodeUris;
-    
-    @Option(names = {"--username", "-u"}, 
-            description = "Neo4j username",
-            defaultValue = "${LOOPY_USERNAME:-neo4j}")
-    private String username;
-    
-    @Option(names = {"--password", "-p"}, 
-            description = "Neo4j password", 
-            interactive = true,
-            arity = "0..1",
-            defaultValue = "${LOOPY_PASSWORD:-password}")
-    private String password;
     
     @Option(names = {"--full-diagnostics", "--diag"}, 
             description = "Run comprehensive diagnostics (default: basic test only)")
@@ -58,6 +51,9 @@ public class TestConnectionCommand implements Callable<Integer> {
     
     @Override
     public Integer call() throws Exception {
+        this.neo4jUri = connection.getNeo4jUri();
+        this.username = connection.getUsername();
+        this.password = connection.getPassword();
         
         if (quickTest) {
             return runQuickTest();

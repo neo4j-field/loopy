@@ -205,6 +205,18 @@ Loopy displays real-time statistics during execution:
 
 ### Run Command Options
 
+`loopy run --help` groups options into the sections below.
+
+**Connection**
+
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--neo4j-uri` | `-a` | Neo4j connection URI | `neo4j://localhost:7687` |
+| `--username` | `-u` | Neo4j username | `neo4j` |
+| `--password` | `-p` | Neo4j password | `password` |
+
+**Execution**
+
 | Option | Short | Description | Default |
 |--------|-------|-------------|---------|
 | `--threads` | `-t` | Number of worker threads | 4 |
@@ -214,16 +226,33 @@ Loopy displays real-time statistics during execution:
 | `--node-labels` | `-n` | Comma-separated node labels | Person,Product,Order |
 | `--relationship-types` | `-r` | Comma-separated relationship types | KNOWS,PURCHASED,CONTAINS |
 | `--property-size` | | Property size in bytes | 1024 |
-| `--report-interval` | | Statistics interval in seconds | 10 |
-| `--csv-logging` | | Enable CSV logging | false |
-| `--csv-file` | | CSV output file path | loopy-stats.csv |
-| `--stats-format` | | Output format: summary, detailed, json | summary |
+
+**YAML Workload**
+
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
 | `--cypher-file` | `-f` | Path to YAML workload file | |
 | `--dry-run` | | Validate without executing | false |
 | `--fail-fast` | | Abort on first query failure | false |
 | `--verbose-stats` | | Enable per-query statistics | false |
+
+**Transaction Mode**
+
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
 | `--transaction-mode` | `-m` | Transaction mode: auto-commit, explicit, managed-read, managed-write, execute-query | auto-commit |
 | `--transaction-group-size` | `-g` | Operations grouped into a single explicit/managed transaction (programmatic mode only) | 1 |
+
+**Output & Reporting**
+
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--report-interval` | | Statistics interval in seconds | 10 |
+| `--csv-logging` | | Enable CSV logging | false |
+| `--csv-file` | | CSV output file path | loopy-stats.csv |
+| `--stats-format` | | Output format: summary, detailed, json | summary |
+| `--quiet` | `-q` | Minimal output | false |
+| `--verbose` | `-v` | Detailed output | false |
 
 ## YAML Workloads
 

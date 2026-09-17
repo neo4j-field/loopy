@@ -215,7 +215,7 @@ man loopy
 **Example with custom JVM options:**
 ```bash
 export LOOPY_JAVA_OPTS="-Xmx2g -XX:+UseG1GC"
-loopy run --workload my-test.yaml
+loopy run --cypher-file my-test.yaml
 ```
 
 ---

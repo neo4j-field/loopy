@@ -2,8 +2,9 @@ package com.neo4j.loopy.commands;
 
 import com.neo4j.loopy.LoopyApplication;
 import com.neo4j.loopy.LoopyConfig;
+import com.neo4j.loopy.cli.ConnectionOptions;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
+import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Parameters;
 
 import java.util.concurrent.Callable;
@@ -21,22 +22,8 @@ public class BenchmarkCommand implements Callable<Integer> {
                 defaultValue = "medium")
     private String profile;
     
-    @Option(names = {"--neo4j-uri", "-a"}, 
-            description = "Neo4j connection URI",
-            defaultValue = "${LOOPY_NEO4J_URI:-bolt://localhost:7687}")
-    private String neo4jUri;
-    
-    @Option(names = {"--username", "-u"}, 
-            description = "Neo4j username",
-            defaultValue = "${LOOPY_USERNAME:-neo4j}")
-    private String username;
-    
-    @Option(names = {"--password", "-p"}, 
-            description = "Neo4j password", 
-            interactive = true,
-            arity = "0..1",
-            defaultValue = "${LOOPY_PASSWORD:-password}")
-    private String password;
+    @Mixin
+    private ConnectionOptions connection = new ConnectionOptions();
     
     @Override
     public Integer call() throws Exception {
@@ -58,9 +45,9 @@ public class BenchmarkCommand implements Callable<Integer> {
             LoopyApplication app = new LoopyApplication();
             
             // Set the benchmark configuration
-            System.setProperty("neo4j.uri", neo4jUri);
-            System.setProperty("neo4j.username", username);
-            System.setProperty("neo4j.password", password);
+            System.setProperty("neo4j.uri", connection.getNeo4jUri());
+            System.setProperty("neo4j.username", connection.getUsername());
+            System.setProperty("neo4j.password", connection.getPassword());
             System.setProperty("threads", String.valueOf(benchProfile.threads));
             System.setProperty("duration.seconds", String.valueOf(benchProfile.duration));
             System.setProperty("write.ratio", String.valueOf(benchProfile.writeRatio));

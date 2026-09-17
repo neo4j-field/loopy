@@ -1,12 +1,11 @@
 package com.neo4j.loopy;
 
+import com.neo4j.loopy.cli.RunOptions;
 import com.neo4j.loopy.config.CypherWorkloadConfig;
 import com.neo4j.loopy.config.CypherWorkloadValidator;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 /**
  * Main application class for Loopy - Neo4j load generator
@@ -24,6 +22,8 @@ import java.util.regex.Pattern;
     name = "loopy",
     description = "Neo4j load generator for testing database performance",
     mixinStandardHelpOptions = true,
+    showDefaultValues = true,
+    sortOptions = false,
     version = "0.3.0",
     subcommands = {
         com.neo4j.loopy.commands.RunCommand.class,
@@ -37,107 +37,10 @@ import java.util.regex.Pattern;
     }
 )
 public class LoopyApplication implements Callable<Integer> {
-    
-    @Option(names = {"--config", "-c"}, description = "Configuration file path")
-    private String configFile;
-    
-    @Option(names = {"--neo4j-uri", "-a"}, 
-            description = "Neo4j connection URI",
-            defaultValue = "${LOOPY_NEO4J_URI:-neo4j://localhost:7687}")
-    private String neo4jUri;
-    
-    @Option(names = {"--username", "-u"}, 
-            description = "Neo4j username",
-            defaultValue = "${LOOPY_USERNAME:-neo4j}")
-    private String username;
-    
-    @Option(names = {"--password", "-p"}, 
-            description = "Neo4j password", 
-            interactive = true,
-            arity = "0..1",
-            defaultValue = "${LOOPY_PASSWORD:-password}")
-    private String password;
-    
-    @Option(names = {"--threads", "-t"}, 
-            description = "Number of worker threads (1-100)",
-            defaultValue = "${LOOPY_THREADS:-4}")
-    private Integer threads;
-    
-    @Option(names = {"--duration", "-d"}, 
-            description = "Test duration in seconds (minimum 1)",
-            defaultValue = "${LOOPY_DURATION:-300}")
-    private Integer duration;
-    
-    @Option(names = {"--write-ratio", "-w"}, 
-            description = "Write operation ratio (0.0-1.0)",
-            defaultValue = "0.7")
-    private Double writeRatio;
-    
-    @Option(names = {"--batch-size", "-b"}, 
-            description = "Batch size for operations (minimum 1)",
-            defaultValue = "100")
-    private Integer batchSize;
-    
-    @Option(names = {"--node-labels", "-n"}, description = "Comma-separated node labels")
-    private String nodeLabels;
-    
-    @Option(names = {"--relationship-types", "-r"}, description = "Comma-separated relationship types")
-    private String relationshipTypes;
-    
-    @Option(names = {"--property-size"}, 
-            description = "Property size in bytes (minimum 1)",
-            defaultValue = "1024")
-    private Integer propertySize;
-    
-    @Option(names = {"--report-interval"}, 
-            description = "Statistics reporting interval in seconds (minimum 1)",
-            defaultValue = "10")
-    private Integer reportInterval;
-    
-    @Option(names = {"--csv-logging"}, description = "Enable CSV logging")
-    private Boolean csvLogging;
-    
-    @Option(names = {"--csv-file"}, description = "CSV output file path")
-    private String csvFile;
-    
-    @Option(names = {"--quiet", "-q"}, description = "Quiet mode - minimal output")
-    private boolean quiet = false;
-    
-    @Option(names = {"--verbose", "-v"}, description = "Verbose mode - detailed output")
-    private boolean verbose = false;
-    
-    // YAML-based Cypher workload options
-    @Option(names = {"--cypher-file", "-f"}, 
-            description = "Path to YAML workload file containing Cypher queries")
-    private String cypherFile;
-    
-    @Option(names = {"--verbose-stats"}, 
-            description = "Enable per-query statistics (default: aggregated only)")
-    private boolean verboseStats = false;
-    
-    @Option(names = {"--dry-run"}, 
-            description = "Validate YAML and test connection without executing workload")
-    private boolean dryRun = false;
-    
-    @Option(names = {"--fail-fast"}, 
-            description = "Abort on first query failure (default: continue with next query)")
-    private boolean failFast = false;
-    
-    @Option(names = {"--stats-format"}, 
-            description = "Statistics output format: summary, detailed, json",
-            defaultValue = "summary")
-    private String statsFormat;
 
-    @Option(names = {"--transaction-mode", "-m"},
-            description = "Transaction mode: auto-commit, explicit, managed-read, managed-write, execute-query",
-            defaultValue = "${LOOPY_TRANSACTION_MODE:-auto-commit}")
-    private String transactionMode;
+    @Mixin
+    private RunOptions options = new RunOptions();
 
-    @Option(names = {"--transaction-group-size", "-g"},
-            description = "Number of operations grouped into a single explicit/managed transaction (default: 1, no grouping). Applies to programmatic (non-YAML) mode.",
-            defaultValue = "${LOOPY_TRANSACTION_GROUP_SIZE:-1}")
-    private Integer transactionGroupSize;
-    
     // Application state
     private LoopyConfig config;
     private CypherWorkloadConfig workloadConfig;
@@ -149,6 +52,19 @@ public class LoopyApplication implements Callable<Integer> {
     
     private void validateParameters() {
         List<String> errors = new ArrayList<>();
+        String cypherFile = options.getCypherFile();
+        String nodeLabels = options.getNodeLabels();
+        String relationshipTypes = options.getRelationshipTypes();
+        Double writeRatio = options.getWriteRatio();
+        String statsFormat = options.getStatsFormat();
+        String transactionMode = options.getTransactionMode();
+        Integer transactionGroupSize = options.getTransactionGroupSize();
+        Integer threads = options.getThreads();
+        Integer duration = options.getDuration();
+        Integer batchSize = options.getBatchSize();
+        Integer propertySize = options.getPropertySize();
+        Integer reportInterval = options.getReportInterval();
+        String neo4jUri = options.getNeo4jUri();
         
         // Validate mutual exclusivity: --cypher-file vs --node-labels/--relationship-types
         if (cypherFile != null) {
@@ -232,9 +148,12 @@ public class LoopyApplication implements Callable<Integer> {
      * Validate and load YAML workload configuration
      */
     private boolean validateAndLoadWorkload() {
+        String cypherFile = options.getCypherFile();
         if (cypherFile == null) {
             return true; // No workload file specified, use default mode
         }
+        boolean quiet = options.isQuiet();
+        boolean verbose = options.isVerbose();
         
         if (!quiet) {
             System.out.println("\u001B[36mValidating YAML workload file: " + cypherFile + "\u001B[0m");
@@ -242,7 +161,7 @@ public class LoopyApplication implements Callable<Integer> {
         
         CypherWorkloadValidator validator = new CypherWorkloadValidator();
         CypherWorkloadValidator.ValidationResult result = validator.validate(
-            cypherFile, neo4jUri, username, password
+            cypherFile, options.getNeo4jUri(), options.getUsername(), options.getPassword()
         );
         
         // Print warnings
@@ -279,6 +198,15 @@ public class LoopyApplication implements Callable<Integer> {
     
     @Override
     public Integer call() throws Exception {
+        return execute(options);
+    }
+
+    /**
+     * Runs the load test using the given options — invoked directly for bare `loopy ...`
+     * and via RunCommand for `loopy run ...` (each has its own parsed RunOptions instance).
+     */
+    public Integer execute(RunOptions opts) throws Exception {
+        this.options = opts;
         try {
             // Initialize ANSI colors
             org.fusesource.jansi.AnsiConsole.systemInstall();
@@ -292,14 +220,14 @@ public class LoopyApplication implements Callable<Integer> {
             }
             
             // Handle dry-run mode
-            if (dryRun) {
-                if (!quiet) {
+            if (options.isDryRun()) {
+                if (!options.isQuiet()) {
                     System.out.println("\u001B[32mDry run completed successfully. No queries were executed.\u001B[0m");
                 }
                 return 0;
             }
             
-            if (verbose) {
+            if (options.isVerbose()) {
                 System.out.println("\u001B[36mVerbose mode enabled\u001B[0m");
             }
             
@@ -318,14 +246,14 @@ public class LoopyApplication implements Callable<Integer> {
             return 0;
             
         } catch (IllegalArgumentException e) {
-            if (!quiet) {
+            if (!options.isQuiet()) {
                 System.err.println("\u001B[31mError: " + e.getMessage() + "\u001B[0m");
             }
             return 1;
         } catch (Exception e) {
-            if (!quiet) {
+            if (!options.isQuiet()) {
                 System.err.println("\u001B[31mUnexpected error: " + e.getMessage() + "\u001B[0m");
-                if (verbose) {
+                if (options.isVerbose()) {
                     e.printStackTrace();
                 }
             }
@@ -337,6 +265,7 @@ public class LoopyApplication implements Callable<Integer> {
     
     private void initializeConfig() {
         // Start with file-based config if specified
+        String configFile = options.getConfigFile();
         if (configFile != null) {
             this.config = new LoopyConfig(configFile);
         } else {
@@ -350,6 +279,22 @@ public class LoopyApplication implements Callable<Integer> {
     private void overrideConfigWithCliOptions() {
         // Build argument array for backward compatibility
         List<String> args = new ArrayList<>();
+        
+        String neo4jUri = options.getNeo4jUri();
+        String username = options.getUsername();
+        String password = options.getPassword();
+        Integer threads = options.getThreads();
+        Integer duration = options.getDuration();
+        Double writeRatio = options.getWriteRatio();
+        Integer batchSize = options.getBatchSize();
+        String nodeLabels = options.getNodeLabels();
+        String relationshipTypes = options.getRelationshipTypes();
+        Integer propertySize = options.getPropertySize();
+        Integer reportInterval = options.getReportInterval();
+        Boolean csvLogging = options.getCsvLogging();
+        String csvFile = options.getCsvFile();
+        String transactionMode = options.getTransactionMode();
+        Integer transactionGroupSize = options.getTransactionGroupSize();
         
         if (neo4jUri != null) args.addAll(List.of("--neo4j.uri=" + neo4jUri));
         if (username != null) args.addAll(List.of("--neo4j.username=" + username));
@@ -378,7 +323,7 @@ public class LoopyApplication implements Callable<Integer> {
     private Worker createWorker() {
         if (workloadConfig != null) {
             // YAML-based Cypher workload mode
-            return new CypherFileWorker(config, stats, workloadConfig, failFast);
+            return new CypherFileWorker(config, stats, workloadConfig, options.isFailFast());
         } else {
             // Default programmatic data generation mode
             return new LoopyWorker(config, stats);
@@ -386,6 +331,8 @@ public class LoopyApplication implements Callable<Integer> {
     }
     
     public void start() {
+        boolean quiet = options.isQuiet();
+        boolean verbose = options.isVerbose();
         if (!quiet) {
             System.out.println("\u001B[36mStarting Loopy load generator...\u001B[0m");
             System.out.println("Configuration:");
@@ -401,9 +348,9 @@ public class LoopyApplication implements Callable<Integer> {
                 System.out.println("  Transaction Mode: " + config.getTransactionMode());
                 if (verbose) {
                     System.out.println("  Description: " + workloadConfig.getDescription());
-                    System.out.println("  Verbose Stats: " + verboseStats);
-                    System.out.println("  Fail Fast: " + failFast);
-                    System.out.println("  Stats Format: " + statsFormat);
+                    System.out.println("  Verbose Stats: " + options.isVerboseStats());
+                    System.out.println("  Fail Fast: " + options.isFailFast());
+                    System.out.println("  Stats Format: " + options.getStatsFormat());
                 }
             } else {
                 System.out.println("  Mode: Programmatic Data Generation");
@@ -430,8 +377,8 @@ public class LoopyApplication implements Callable<Integer> {
         running = true;
         
         // Configure stats based on CLI options
-        stats.setVerboseStats(verboseStats);
-        stats.setStatsFormat(statsFormat);
+        stats.setVerboseStats(options.isVerboseStats());
+        stats.setStatsFormat(options.getStatsFormat());
         
         // Start worker threads using factory pattern
         for (int i = 0; i < config.getThreads(); i++) {
@@ -464,7 +411,7 @@ public class LoopyApplication implements Callable<Integer> {
     public void shutdown() {
         if (!running) return;
         
-        if (!quiet) {
+        if (!options.isQuiet()) {
             System.out.println("\n\u001B[33mShutting down Loopy...\u001B[0m");
         }
         running = false;
@@ -490,14 +437,14 @@ public class LoopyApplication implements Callable<Integer> {
         }
         
         // Print final statistics
-        if (!quiet) {
+        if (!options.isQuiet()) {
             stats.printFinalStats();
         }
         
         // Close CSV writer if enabled
         stats.close();
         
-        if (!quiet) {
+        if (!options.isQuiet()) {
             System.out.println("\u001B[32mLoopy shutdown complete.\u001B[0m");
         }
     }

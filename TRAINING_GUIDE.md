@@ -122,6 +122,23 @@ These options are available for the main `loopy` command and apply across all su
 | `--relationship-types` | `-r` | Comma-separated rel types | `WORKS_FOR,KNOWS` | `-r PURCHASED,REVIEWED` |
 | `--property-size` | | Property size in bytes | `1024` | `--property-size 2048` |
 
+### YAML Workload Options
+
+| Option | Short | Description | Default | Example |
+|--------|-------|-------------|---------|---------|
+| `--cypher-file` | `-f` | Path to YAML workload file | | `-f workload.yaml` |
+| `--dry-run` | | Validate YAML and test connection without executing | `false` | `--dry-run` |
+| `--fail-fast` | | Abort on first query failure | `false` | `--fail-fast` |
+| `--verbose-stats` | | Enable per-query statistics | `false` | `--verbose-stats` |
+| `--stats-format` | | Statistics output format: summary, detailed, json | `summary` | `--stats-format json` |
+
+### Transaction Mode Options
+
+| Option | Short | Description | Default | Example |
+|--------|-------|-------------|---------|---------|
+| `--transaction-mode` | `-m` | Transaction mode: auto-commit, explicit, managed-read, managed-write, execute-query | `auto-commit` | `-m managed-write` |
+| `--transaction-group-size` | `-g` | Operations grouped into a single explicit/managed transaction (programmatic mode only) | `1` | `-g 5` |
+
 ### Reporting Options
 
 | Option | Description | Default | Example |
@@ -168,6 +185,12 @@ loopy run --config production.properties
 
 # Custom data model
 loopy run --node-labels User,Product --relationship-types PURCHASED,REVIEWED
+
+# Run a YAML-defined Cypher workload
+loopy run --cypher-file workload.yaml --dry-run
+
+# Compare transaction modes, grouping 5 operations per transaction
+loopy run --transaction-mode managed-write --transaction-group-size 5
 ```
 
 **Training Exercise:**
