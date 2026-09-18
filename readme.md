@@ -38,6 +38,14 @@ cd loopy-0.3.0
 
 For detailed installation options, see [INSTALL.md](docs/INSTALL.md).
 
+### Docker
+
+A container image is published to GHCR on each release:
+
+```bash
+docker run --rm ghcr.io/neo4j-field/loopy:latest test-connection -a bolt://host.docker.internal:7687 -u neo4j -p password
+```
+
 ### What's Included
 
 ```

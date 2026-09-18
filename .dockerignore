@@ -1,0 +1,13 @@
+.git
+.github
+docs
+scripts
+bin
+*.md
+target/archive-tmp
+target/classes/com
+target/generated-sources
+target/generated-test-sources
+target/maven-archiver
+target/maven-status
+target/test-classes

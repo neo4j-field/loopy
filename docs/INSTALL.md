@@ -78,6 +78,19 @@ cd loopy
 # The distribution will be in target/loopy-*-dist.tar.gz
 ```
 
+### Method 3: Docker
+
+```bash
+docker run --rm ghcr.io/neo4j-field/loopy:latest test-connection -a bolt://host.docker.internal:7687 -u neo4j -p password
+```
+
+To use a custom workload file, mount it into the container:
+
+```bash
+docker run --rm -v "$(pwd)/my-workload.yaml:/app/workload.yaml" \
+  ghcr.io/neo4j-field/loopy:latest run -a bolt://host.docker.internal:7687 -u neo4j -p password -f /app/workload.yaml
+```
+
 ---
 
 ## Distribution Contents
